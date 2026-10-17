@@ -6,14 +6,12 @@
 #include "serial_control/CommandHandler.h"
 
 int main() {
-	initialize();
-	int character = 0;
+	initialize(); // USB and stdio initialization
+	int character = 0; 
 	std::string command = "";
 	
     while (true) {
-	// Sprawdź, czy nadszedł jakiś znak (z timeoutem 0, żeby pętla się nie blokowała)
-		CommandHandler(character, command);
-        sleep_ms(10); // Krótka pauza, żeby nie obciążać procesora w 100%
+		CommandHandler(character, command); // Function to handle command input and execution
+        sleep_ms(10); // Pause for a short time to avoid busy waiting and allow other tasks to run
 	}
- // Do nothing, just keep the program running to maintain the USB connection
     }

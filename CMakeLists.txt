@@ -13,6 +13,7 @@ add_executable(CyberDeck
     src/main.cpp
     src/init/initialize.cpp
     src/serial_control/CommandHandler.cpp
+    include/usb_descriptors.cpp
 )
 
 #Add libraries. Default is pico_stdlib, but you can also link other libraries

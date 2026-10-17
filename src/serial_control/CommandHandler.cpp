@@ -56,7 +56,7 @@ void CommandHandler(int character, std::string &recieved_command){
 void commandHelp(const std::string &CommandArgument){
     printf("Available commands:\n");
     for (const auto& cmd : commandList) {
-        printf("- %-10s: %-5s\n", cmd.command.c_str(), cmd.description.c_str());
+        printf("- %-10s %-5s\n", cmd.command.c_str(), cmd.description.c_str());
     }
 }
 
