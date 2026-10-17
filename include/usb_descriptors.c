@@ -23,6 +23,7 @@
  *
  */
 
+#include "pico/unique_id.h"
 #include "tusb.h"
 #include "usb_descriptors.h"
 #define EPNUM_CDC_NOTIF   0x81  // Endpoint powiadomień CDC (IN)
@@ -53,33 +54,27 @@ static tusb_desc_device_t const desc_device = {
     .bNumConfigurations = 0x01     // Ile mamy konfiguracji (zazwyczaj 1)
 };
 
-// Definicja identyfikatorów raportów (żeby urządzenie wiedziało, co wysyła)
-enum {
-  REPORT_ID_KEYBOARD = 1,
-  REPORT_ID_CONSUMER   // Dla Mute, Volume Up/Down itp.
-};
-
 // Właściwy opis raportu HID
 uint8_t const desc_hid_report[] = {
   // 1. Standardowa klawiatura (obsłuży m.in. F13, F14 itd.)
   TUD_HID_REPORT_DESC_KEYBOARD(HID_REPORT_ID(REPORT_ID_KEYBOARD)),
   
   // 2. Klawisze multimedialne / Consumer Control (obsłuży Mute, Volume Up, Volume Down)
-  TUD_HID_REPORT_DESC_CONSUMER(HID_REPORT_ID(REPORT_ID_CONSUMER))
+  TUD_HID_REPORT_DESC_CONSUMER(HID_REPORT_ID(REPORT_ID_CONSUMER)),
+
+  // 3. System Control (np. Sleep, Power, Wake)
+  TUD_HID_REPORT_DESC_SYSTEM_CONTROL(HID_REPORT_ID(REPORT_ID_SYSTEM_CONTROL))
 };
 
 // Funkcja zwrotna, o którą TinyUSB upomni się w trakcie działania
-uint8_t const * tud_hid_descriptor_report_cb(uint8_t instance) {
+uint8_t const *tud_hid_descriptor_report_cb(uint8_t instance) {
   (void) instance;
   return desc_hid_report;
 }
 
-enum {
-  ITF_NUM_CDC = 0,     // CDC Control (sterujący) - numer 0
-  ITF_NUM_CDC_DATA,    // CDC Data (danych)        - numer 1 (automatycznie)
-  ITF_NUM_HID,         // HID (klawiatura/multimedia) - numer 2 (automatycznie)
-  ITF_NUM_TOTAL        // Łączna liczba interfejsów = 3
-};
+uint8_t const *tud_descriptor_device_cb(void) {
+  return (uint8_t const *)&desc_device;
+}
 
 uint8_t const desc_configuration[] = {
   // 1. Ogólny nagłówek konfiguracji (1 konfiguracja, 3 interfejsy, maksymalny pobór prądu 100mA)
@@ -119,7 +114,12 @@ uint16_t const * tud_descriptor_string_cb(uint8_t index, uint16_t langid) {
     memcpy(&_desc_str[1], string_desc_arr[0], 2);
     chr_count = 1;
   } else if ( index == 3 ) { // Indeks 3 to numer seryjny (STRID_SERIAL)
-    chr_count = board_usb_get_serial(_desc_str + 1, 32);
+    char serial[2 * PICO_UNIQUE_BOARD_ID_SIZE_BYTES + 1];
+    pico_get_unique_board_id_string(serial, sizeof(serial));
+    chr_count = strlen(serial);
+    for (size_t i = 0; i < chr_count; i++) {
+      _desc_str[1 + i] = serial[i];
+    }
   } else {
     if ( !(index < sizeof(string_desc_arr) / sizeof(string_desc_arr[0])) ) return NULL;
     const char *str = string_desc_arr[index];
@@ -132,4 +132,23 @@ uint16_t const * tud_descriptor_string_cb(uint8_t index, uint16_t langid) {
 
   _desc_str[0] = (uint16_t) ((TUSB_DESC_STRING << 8) | (2 * chr_count + 2));
   return _desc_str;
+}
+
+// Funkcja zwrotna wywoływana, gdy host pyta o raport (często wymagana przez stos)
+uint16_t tud_hid_get_report_cb(uint8_t instance, uint8_t report_id, hid_report_type_t report_type, uint8_t* buffer, uint16_t reqlen) {
+  (void) instance;
+  (void) report_id;
+  (void) report_type;
+  (void) buffer;
+  (void) reqlen;
+  return 0;
+}
+
+// Funkcja zwrotna wywoływana, gdy host wysyła raport do urządzenia (np. stan LED CapsLock/NumLock)
+void tud_hid_set_report_cb(uint8_t instance, uint8_t report_id, hid_report_type_t report_type, uint8_t const* buffer, uint16_t bufsize) {
+  (void) instance;
+  (void) report_id;
+  (void) report_type;
+  (void) buffer;
+  (void) bufsize;
 }

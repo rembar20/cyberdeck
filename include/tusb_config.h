@@ -41,6 +41,7 @@ extern "C" {
 // Rozmiar bufora dla HID (musi pomieścić raport wysyłany do komputera)
 #define CFG_TUD_HID_BUFSIZE 16
 #define CFG_TUD_ENDPOINT0_SIZE   64 // Rozmiar pakietu dla endpointu 0 (standard USB)
+#define CFG_TUD_HID_EP_BUFSIZE 64
 #ifdef __cplusplus
 }
 #endif

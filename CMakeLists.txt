@@ -13,17 +13,19 @@ add_executable(CyberDeck
     src/main.cpp
     src/init/initialize.cpp
     src/serial_control/CommandHandler.cpp
-    include/usb_descriptors.cpp
+    src/usb_descriptors.c
 )
 
 #Add libraries. Default is pico_stdlib, but you can also link other libraries
 target_link_libraries(CyberDeck 
     pico_stdlib
+    pico_unique_id
     tinyusb_device
     tinyusb_board
 )
 # Add configuration folder
 target_include_directories(CyberDeck PRIVATE
- include
+    include
+    src
 )
 pico_add_extra_outputs(CyberDeck)
