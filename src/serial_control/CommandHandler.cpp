@@ -5,6 +5,8 @@
 #include "init/initialize.h"
 #include "usb_descriptors.h"
 #include "pico/bootrom.h"
+#include "button_control/buttons_flash.h"
+
 
 uint16_t StringToHex(const std::string &str);
 void commandHelp(const std::string &CommandArgument);
@@ -16,6 +18,10 @@ void firmware_update_mode(const std::string &CommandArgument);
 void commandMute(const std::string &CommandArgument);
 void commandVolUp(const std::string &CommandArgument);
 void commandVolDown(const std::string &CommandArgument);
+void commandSet(const std::string &CommandArgument);
+void commandLoadConfig(const std::string &CommandArgument);
+void commandSaveConfig(const std::string &CommandArgument);
+void commandFactoryReset(const std::string &CommandArgument);
 std::string command = "";
 std::string command_argument = "";
 uint16_t release_key = 0x0000;
@@ -34,7 +40,12 @@ CommandList commandList[] = {
     {"firmware_update", firmware_update_mode, "Reboot into BOOTSEL mode for firmware update"},
     {"mute", commandMute, "Mute the system volume"},
     {"volup", commandVolUp, "Increase the system volume"},
-    {"voldown", commandVolDown, "Decrease the system volume"}
+    {"voldown", commandVolDown, "Decrease the system volume"},
+    {"set", commandSet, "Assign a function to a key"},
+    {"load_config", commandLoadConfig, "Load config from flash memory"},
+    {"save_config", commandSaveConfig, "Save config to flash memory"},
+    {"ResetToDefault", commandFactoryReset, "RESET FLASH MEMORY TO DEFAULT SETTINGS!"}
+
 };
 
 void CommandHandler(int character, std::string &recieved_command){

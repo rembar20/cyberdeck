@@ -1,0 +1,64 @@
+{
+	"buttons" :[
+	{
+		"button_id": 1,
+		"type":"",
+		"function": ""
+	},
+	{
+		"button_id": 2,
+		"type":"",
+		"function": ""
+	},
+	{
+		"button_id": 3,
+		"type":"",
+		"function": ""
+	},
+	{
+		"button_id": 4,
+		"type":"",
+		"function": ""
+	},
+	{
+		"button_id": 5,
+		"type":"",
+		"function": ""
+	},
+	{
+		"button_id": 6,
+		"type":"",
+		"function": ""
+	},
+	{
+		"button_id": 7,
+		"type":"",
+		"function": ""
+	},
+	{
+		"button_id": 8,
+		"type":"",
+		"function": ""
+	},
+	{
+		"button_id": 9,
+		"type":"",
+		"function": ""
+	},
+	{
+		"button_id": 10,
+		"type":"",
+		"function": ""
+	},
+	{
+		"button_id": 11,
+		"type":"",
+		"function": ""
+	},
+	{
+		"button_id": 12,
+		"type":"",
+		"function": ""
+	}
+	]
+}
