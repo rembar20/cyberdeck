@@ -13,6 +13,9 @@ void commandEcho(const std::string &CommandArgument);
 void commandMedia(const std::string &CommandArgument);
 void commandKeyboard(const std::string &CommandArgument);
 void firmware_update_mode(const std::string &CommandArgument);
+void commandMute(const std::string &CommandArgument);
+void commandVolUp(const std::string &CommandArgument);
+void commandVolDown(const std::string &CommandArgument);
 std::string command = "";
 std::string command_argument = "";
 uint16_t release_key = 0x0000;
@@ -28,7 +31,10 @@ CommandList commandList[] = {
     {"echo", commandEcho, "Echo the input"},
     {"media", commandMedia, "Control media keys, use Hex code as an argument, e.g., media 0xE2 for Mute"},
     {"keyboard", commandKeyboard, "Send keyboard keys, use Hex code as an argument, e.g., keyboard 0x04 for 'a'"},
-    {"firmware_update", firmware_update_mode, "Reboot into BOOTSEL mode for firmware update"}
+    {"firmware_update", firmware_update_mode, "Reboot into BOOTSEL mode for firmware update"},
+    {"mute", commandMute, "Mute the system volume"},
+    {"volup", commandVolUp, "Increase the system volume"},
+    {"voldown", commandVolDown, "Decrease the system volume"}
 };
 
 void CommandHandler(int character, std::string &recieved_command){
@@ -116,4 +122,14 @@ void firmware_update_mode(const std::string &CommandArgument) {
     sleep_ms(100);
     // Funkcja Pico SDK wywołująca natychmiastowy tryb dysku USB (BOOTSEL)
     reset_usb_boot(0, 0);
+}
+
+void commandMute(const std::string &CommandArgument) {
+    commandMedia("0xE2"); // Mute keycode
+}
+void commandVolUp(const std::string &CommandArgument) {
+    commandMedia("0xE9"); // Volume Up keycode
+}
+void commandVolDown(const std::string &CommandArgument) {
+    commandMedia("0xEA"); // Volume Down keycode
 }
