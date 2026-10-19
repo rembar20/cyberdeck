@@ -26,6 +26,7 @@ extern "C" {
 
 // Urządzenie HID (Klawiatura / Mysz / Kontroler) - idealne do CyberDecka!
 #define CFG_TUD_HID 1
+#define CFG_TUD_HID_COUNT 4 // Liczba interfejsów HID (np. klawiatura, multimedia, system control, itp.)
 
 // Pozostałe klasy (na razie wyłączone, żeby nie zaśmiecać pamięci)
 #define CFG_TUD_MSC 0   // Pamięć masowa (pendrive)

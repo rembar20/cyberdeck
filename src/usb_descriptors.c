@@ -26,6 +26,7 @@
 #include "pico/unique_id.h"
 #include "tusb.h"
 #include "usb_descriptors.h"
+#include "pico/bootrom.h"
 #define EPNUM_CDC_NOTIF   0x81  // Endpoint powiadomień CDC (IN)
 #define EPNUM_CDC_OUT     0x02  // Endpoint odbioru danych z PC do mikrokontrolera (OUT)
 #define EPNUM_CDC_IN      0x82  // Endpoint wysyłania danych z mikrokontrolera do PC (IN)
@@ -60,10 +61,7 @@ uint8_t const desc_hid_report[] = {
   TUD_HID_REPORT_DESC_KEYBOARD(HID_REPORT_ID(REPORT_ID_KEYBOARD)),
   
   // 2. Klawisze multimedialne / Consumer Control (obsłuży Mute, Volume Up, Volume Down)
-  TUD_HID_REPORT_DESC_CONSUMER(HID_REPORT_ID(REPORT_ID_CONSUMER)),
-
-  // 3. System Control (np. Sleep, Power, Wake)
-  TUD_HID_REPORT_DESC_SYSTEM_CONTROL(HID_REPORT_ID(REPORT_ID_SYSTEM_CONTROL))
+  TUD_HID_REPORT_DESC_CONSUMER(HID_REPORT_ID(REPORT_ID_CONSUMER))
 };
 
 // Funkcja zwrotna, o którą TinyUSB upomni się w trakcie działania
@@ -151,4 +149,19 @@ void tud_hid_set_report_cb(uint8_t instance, uint8_t report_id, hid_report_type_
   (void) report_type;
   (void) buffer;
   (void) bufsize;
+}
+
+void tud_cdc_line_state_callback(uint8_t itf, bool dtr, bool rts) {
+    (void) itf;
+    (void) rts;
+    
+    // Jeśli host otworzy port z prędkością 1200 bps i zamknie DTR
+    if (!dtr) {
+        cdc_line_coding_t line_coding;
+        tud_cdc_get_line_coding(&line_coding); // Tylko wskaźnik jako argument
+        
+        if (line_coding.bit_rate == 1200) {
+            reset_usb_boot(0, 0); // Reset do trybu bootloadera (pendrive)
+        }
+    }
 }

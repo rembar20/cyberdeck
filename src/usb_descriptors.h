@@ -19,7 +19,6 @@ enum {
 enum {
   REPORT_ID_KEYBOARD = 1,
   REPORT_ID_CONSUMER,
-  REPORT_ID_SYSTEM_CONTROL
 };
 
 #ifdef __cplusplus

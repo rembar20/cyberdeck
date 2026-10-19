@@ -4,11 +4,15 @@
 #include "tusb.h"
 #include "init/initialize.h"
 #include "usb_descriptors.h"
+#include "pico/bootrom.h"
 
+uint16_t StringToHex(const std::string &str);
 void commandHelp(const std::string &CommandArgument);
 void commandPing(const std::string &CommandArgument);
 void commandEcho(const std::string &CommandArgument);
-void commandSimulate(const std::string &CommandArgument);
+void commandMedia(const std::string &CommandArgument);
+void commandKeyboard(const std::string &CommandArgument);
+void firmware_update_mode(const std::string &CommandArgument);
 std::string command = "";
 std::string command_argument = "";
 uint16_t release_key = 0x0000;
@@ -22,7 +26,9 @@ CommandList commandList[] = {
     {"help", commandHelp, "Display this help message"},
     {"ping", commandPing, "Connectivity Test"},
     {"echo", commandEcho, "Echo the input"},
-    {"Simulate", commandSimulate, "Simulate HID Key, use Hex code as an argument, e.g., Simulate 0xE2 for Mute"}
+    {"media", commandMedia, "Control media keys, use Hex code as an argument, e.g., media 0xE2 for Mute"},
+    {"keyboard", commandKeyboard, "Send keyboard keys, use Hex code as an argument, e.g., keyboard 0x04 for 'a'"},
+    {"firmware_update", firmware_update_mode, "Reboot into BOOTSEL mode for firmware update"}
 };
 
 void CommandHandler(int character, std::string &recieved_command){
@@ -71,7 +77,7 @@ void commandEcho(const std::string &CommandArgument){
     printf("%s\n", CommandArgument.c_str());
 }
 
-void commandSimulate(const std::string &CommandArgument){
+void commandMedia(const std::string &CommandArgument){
     
     uint16_t Keycode = StringToHex(CommandArgument);
     if(tud_mounted()){
@@ -79,16 +85,35 @@ void commandSimulate(const std::string &CommandArgument){
         sleep_ms(100); // Optional delay to ensure the host is ready
       tud_hid_report(REPORT_ID_CONSUMER, &release_key, sizeof(release_key)); // Send key release report
     }
+}
 
+
+void commandKeyboard(const std::string &CommandArgument){
+    uint16_t Keycode = StringToHex(CommandArgument);
+    if(tud_mounted()){
+      tud_hid_report(REPORT_ID_KEYBOARD, &Keycode, sizeof(Keycode)); // Send key press report
+        sleep_ms(100); // Optional delay to ensure the host is ready
+      tud_hid_report(REPORT_ID_KEYBOARD, &release_key, sizeof(release_key)); // Send key release report
+    }
 }
 
 uint16_t StringToHex(const std::string &str) {
     uint16_t keycode = 0x0000;
-    try{
-        keycode = std::stoul(str, nullptr, 16); // Convert hex string to unsigned long
-    } catch (const std::invalid_argument& e) {
+    char *endptr = nullptr;
+        unsigned long keycode_long = std::strtoul(str.c_str(), &endptr, 16); // Convert hex string to unsigned long
+    if (endptr == str.c_str() || *endptr != '\0') {
         printf("Invalid argument. Please provide a valid hex code.\n");
-        keycode = 0x0000;
+        return 0x0000;
+    } else {
+        keycode = static_cast<uint16_t>(keycode_long);
+        printf("Converted hex code: 0x%04X\n", keycode);
     }
     return keycode;
+}
+
+void firmware_update_mode(const std::string &CommandArgument) {
+    printf("Przechodze w tryb BOOTSEL...\n");
+    sleep_ms(100);
+    // Funkcja Pico SDK wywołująca natychmiastowy tryb dysku USB (BOOTSEL)
+    reset_usb_boot(0, 0);
 }
