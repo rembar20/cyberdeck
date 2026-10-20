@@ -9,8 +9,9 @@
 #define FLASH_OFFSET (2*1024*1024-4096)
 #define FLASH_SIZE 4096
 #define BUTTON_COUNT 12
+const int KEY_PIN[12] {1,2,3,4,5,6,7,8,9,10,11,12};
 struct ButtonConfig {
-    int ButtonID;
+    int ButtonPIN;
     char Type[12];
     char Function[16];
 };
@@ -28,20 +29,38 @@ void save_config(const ButtonConfig *DATA_TO_SAVE, uint32_t data_size){
 void load_config(const ButtonConfig *DATA_TO_LOAD, uint32_t data_size)
 {
     const ButtonConfig *ReadFlash = (const ButtonConfig *)(XIP_BASE + FLASH_OFFSET);
-    if(ReadFlash[0].ButtonID == 1){
+    if(ReadFlash[0].ButtonPIN == KEY_PIN[0]){
         memcpy((void*)DATA_TO_LOAD, ReadFlash, data_size);
     }else{
-        save_config(DATA_TO_LOAD, sizeof(DATA_TO_LOAD));
+        save_config(DATA_TO_LOAD, data_size);
     }
 }
 
-void assign_function(int id,std::string Type, std::string KeyFunction, ButtonConfig *ARRAY)
+void assign_function(int id, int pin, std::string Type, std::string KeyFunction, ButtonConfig *ARRAY)
 {
-    int index;
-    for(int i = 0; i<=BUTTON_COUNT; i++){
-        if(id == ARRAY[i].ButtonID){index = id;}else{index = 1000;}
+    int index = -1;
+    if (id >=1 && id<=BUTTON_COUNT){
+        index = id-1;
+        if(pin > -1){
+            ARRAY[index].ButtonPIN = pin;
+        }
+        if(Type != ""){
+        strncpy(ARRAY[index].Type, Type.c_str(), sizeof(ARRAY[index].Type));
+        ARRAY[index].Type[sizeof(ARRAY[index].Type) - 1] = '\0';
+        }
+        if(KeyFunction != ""){
+        strncpy(ARRAY[index].Function, KeyFunction.c_str(), sizeof(ARRAY[index].Function));
+        ARRAY[index].Function[sizeof(ARRAY[index].Function) - 1] = '\0';
+        }
+    }else{
+        printf("Invalid button ID");
     }
-    if (index <= BUTTON_COUNT) {
-    }else{printf("Unknown ID");
+}
+
+void DefaultSettings(ButtonConfig *ARRAY){
+    for(int i = 0; i<BUTTON_COUNT; i++){
+    ARRAY[i].ButtonPIN = KEY_PIN[i];
+    memset(ARRAY[i].Type, 0, sizeof(ARRAY[i].Type));
+    memset(ARRAY[i].Function, 0, sizeof(ARRAY[i].Function));
     }
 }

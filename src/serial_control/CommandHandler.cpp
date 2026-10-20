@@ -22,9 +22,12 @@ void commandSet(const std::string &CommandArgument);
 void commandLoadConfig(const std::string &CommandArgument);
 void commandSaveConfig(const std::string &CommandArgument);
 void commandFactoryReset(const std::string &CommandArgument);
+void ArgumentParser(std::string Argument, std::string *ReturnArray);
+
 std::string command = "";
 std::string command_argument = "";
 uint16_t release_key = 0x0000;
+
 struct CommandList{
     std::string command;
     void (*function)(const std::string &CommandArgument); // Function pointer with default argument
@@ -46,6 +49,21 @@ CommandList commandList[] = {
     {"save_config", commandSaveConfig, "Save config to flash memory"},
     {"ResetToDefault", commandFactoryReset, "RESET FLASH MEMORY TO DEFAULT SETTINGS!"}
 
+};
+
+ButtonConfig ButtonList[] = {
+    {KEY_PIN[0],"",""},
+    {KEY_PIN[1],"",""},
+    {KEY_PIN[2],"",""},
+    {KEY_PIN[3],"",""},
+    {KEY_PIN[4],"",""},
+    {KEY_PIN[5],"",""},
+    {KEY_PIN[6],"",""},
+    {KEY_PIN[7],"",""},
+    {KEY_PIN[8],"",""},
+    {KEY_PIN[9],"",""},
+    {KEY_PIN[10],"",""},
+    {KEY_PIN[11],"",""}
 };
 
 void CommandHandler(int character, std::string &recieved_command){
@@ -104,7 +122,6 @@ void commandMedia(const std::string &CommandArgument){
     }
 }
 
-
 void commandKeyboard(const std::string &CommandArgument){
     uint16_t Keycode = StringToHex(CommandArgument);
     if(tud_mounted()){
@@ -138,9 +155,20 @@ void firmware_update_mode(const std::string &CommandArgument) {
 void commandMute(const std::string &CommandArgument) {
     commandMedia("0xE2"); // Mute keycode
 }
+
 void commandVolUp(const std::string &CommandArgument) {
     commandMedia("0xE9"); // Volume Up keycode
 }
+
 void commandVolDown(const std::string &CommandArgument) {
     commandMedia("0xEA"); // Volume Down keycode
+}
+
+void commandLoadConfig(const std::string &CommandArgument){
+    //load_config();
+}
+
+void ArgumentParser(std::string &RecivArgument, std::string *ReturnArray){
+    int FirstSpace = RecivArgument.find(' ');
+    ReturnArray[0] = RecivArgument.substr(0, FirstSpace);
 }
